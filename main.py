@@ -24,9 +24,13 @@ class ReminderApp:
         master.geometry("400x300")  # Set initial size to 800x600 pixels
         self.reminders = {}
 
+        # Initialize the reminders_frame attribute
+        self.reminders_frame = Frame(master)
+        self.reminders_frame.pack()
+
         # Input for reminder message
         Label(master, text="Message:").pack()
-        self.message_entry = Entry(master)
+        self.message_entry = Entry(master)  # Initialize the message_entry attribute
         self.message_entry.pack()
 
         # Input for reminder interval
@@ -45,15 +49,22 @@ class ReminderApp:
         self.reminder_thread = threading.Thread(target=run_reminders, daemon=True)
         self.reminder_thread.start()
 
-    def add_reminder(self):
-        message = self.message_entry.get()
-        try:
-            interval = int(self.interval_entry.get())
-            job = schedule.every(interval).minutes.do(send_notification, message=message)
-            label, delete_button = self.update_reminders_display(message, interval, job)
-            self.reminders[job] = (label, delete_button)  # Store the job, its label, and its delete button
-        except ValueError:
-            print("Please enter a valid number for the interval.")  # Console feedback
+        #Default reminders
+        self.add_reminder("Time to take a break!", 90)
+        self.add_reminder("Time to drink some water!", 30)
+
+    def add_reminder(self, message=None, interval=None):
+        if message is None:
+            message = self.message_entry.get()
+        if interval is None:
+            try:
+                interval = int(self.interval_entry.get())
+            except ValueError:
+                print("Please enter a valid number for the interval.")  # Console feedback
+                return
+        job = schedule.every(interval).minutes.do(send_notification, message=message)
+        label, delete_button = self.update_reminders_display(message, interval, job)
+        self.reminders[job] = (label, delete_button)  # Store the job, its label, and its delete button
 
     def delete_reminder(self, job):
         if job in self.reminders:
