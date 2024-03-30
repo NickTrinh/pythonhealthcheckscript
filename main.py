@@ -89,7 +89,7 @@ class ReminderApp:
         return label, delete_button  # Return the label
 
 
-def main():
+def      main():
     root = Tk()
     app = ReminderApp(root)
     root.mainloop()
